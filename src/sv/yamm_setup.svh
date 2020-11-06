@@ -26,7 +26,7 @@
 /**
  * The supported allocation modes, used by buffer allocation operations
  */
-typedef enum {RANDOM_FIT=0, FIRST_FIT_RND=1, BEST_FIT_RND=2, FIRST_FIT=3, BEST_FIT=4, UNIFORM_FIT=5 } yamm_allocation_mode_e;
+typedef enum {RANDOM_FIT=0, FIRST_FIT_RND=1, BEST_FIT_RND=2, FIRST_FIT=3, BEST_FIT=4, UNIFORM_FIT=5 , LAST_FIT=6 } yamm_allocation_mode_e;
 
 /**
  * Direction for accesses, not used at the moment
