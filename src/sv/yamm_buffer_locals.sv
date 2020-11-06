@@ -98,6 +98,21 @@ function bit yamm_buffer::compute_start_addr(yamm_buffer suitable_free_buffer, y
 
 		end
 
+                LAST_FIT : begin
+                        // Randomize the start_addr with the constrains of being inside
+                        // the buffer boundaries and respecting the alignment
+                        if (!randomize(start_addr) with {
+                            start_addr == suitable_free_buffer.get_end_addr()-size + 1;
+                            start_addr % start_addr_alignment == 0;
+                        }) begin
+                                $error($sformatf("[YAMM_ERR] Can't randomize!"));
+                                return 0;
+                        end
+
+                        return 1;
+
+                    end
+
 		UNIFORM_FIT: begin
 
 			start_addr = suitable_free_buffer.start_addr + (suitable_free_buffer.size - size)/2;
@@ -317,6 +332,52 @@ function yamm_buffer yamm_buffer::find_suitable_buffer(yamm_size_width_t size, i
 			return null;
 
 		end
+                LAST_FIT: begin
+
+                    int last_buffer = number_of_free_buffers-1;
+                    //$display("last_buffer %0d", last_buffer);
+
+                        forever begin
+                            int buffer_cnt = last_buffer;
+                            yamm_buffer temp_prev;
+
+                            //$display("last_buffer %0d", last_buffer);
+
+                            
+                            // Find the buffer set by last_buffer above
+                            while(buffer_cnt--)
+                              begin
+                                  temp = temp.next_free;
+                              end
+                            
+                            if(size <= temp.size)
+                              if(alignment != 1)
+                                tsize = compute_size_with_align(alignment, temp);
+                              else
+                                tsize = temp.size;
+                            else
+                              tsize = temp.size;
+
+                            //$display("looking for found mem tsize %0d size %0d", tsize, size);
+                            
+                            if(tsize >= size) begin
+                                //$display("found mem tsize %0d size %0d", tsize, size);
+                                return temp;
+                            end
+
+                            // Search the memory for a suitable free buffer - this one did not work
+                            if (last_buffer > 0)
+                              last_buffer--;
+                            else
+                              break;
+                            
+                        end
+                    // no buffers worked
+                    //$display("no buffer found");
+                    return null;
+
+                end
+
 		default: begin
 			return null;
 		end
