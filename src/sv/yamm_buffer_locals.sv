@@ -349,7 +349,9 @@ function yamm_buffer yamm_buffer::find_suitable_buffer(yamm_size_width_t size, i
                               begin
                                   temp = temp.next_free;
                               end
-                            
+
+                            if (temp == null) break;
+				
                             if(size <= temp.size)
                               if(alignment != 1)
                                 tsize = compute_size_with_align(alignment, temp);
